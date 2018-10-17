@@ -1,0 +1,35 @@
+```{r,warning=FALSE}
+
+library(sp)  
+library(raster)  
+library(rgeos)
+
+###以mask图层为边界，求mask上各点到river的距离
+
+f.dis <- function(x,y){
+  
+  ####boundary raster with NA values
+  r <- raster(ext=extent(x),resolution=res(x))
+
+  p <- as(spTransform(y,crs.geo),"SpatialPoints") #########line 转化为points
+  
+  d <- distanceFromPoints(r, p)
+}
+
+
+f.SDR <- function(MASK,Station,River){
+  D1 <- f.dis(x=MASK,y=Station)###到出口距离的反距离
+  D1 <- 100/(D1^(1/1.4))
+  
+  D2 <- f.dis(x=MASK,y=River)###到河道距离的反距离
+  D2 <- 10/(D2^(1/1.75))
+
+  SDR <- D1 *D2
+  return(SDR)
+}
+
+SDR <- f.SDR(MASK=mask,Station=liying,River=river)
+
+plot(SDR,main="SDR",cex.main=0.9)
+
+```
